@@ -34,7 +34,6 @@ def InstantiatePart(part, pinToNetMapping):
       if pin.name not in pinNames:
         pinNames.append(pin.name)
 
-    print("change this to in pins so that we attach this to pins not to a string")
     for pin in pins:
       #Check if net name is in the net name mapping
       if pin.name in pinToNetMapping:
@@ -45,7 +44,7 @@ def InstantiatePart(part, pinToNetMapping):
       #Net already exists
       if Net.get(NetName):
         pin += Net.get(NetName)
-        print("Existing net: " + NetName)
+        #print("Existing net: " + NetName)
       #Create a new net
       else:
         pin += Net(NetName)
