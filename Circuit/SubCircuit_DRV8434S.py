@@ -26,11 +26,7 @@ class SubCircuit_DRV8434S:
                    'SDO',
                    'CS_n'
                    ]
-    def CreateNet(self, NetName):
-      Net(self.name + "_" + NetName)
-      return self.name + "_" + NetName
-    def GetNetName(self, NetName):
-      return self.name + "_" + NetName
+
     #Modify this function for your desired sub circuit
     def DefineSubCircuit(self):
       VD     = self.CreateNet('+5VD')
@@ -68,18 +64,29 @@ class SubCircuit_DRV8434S:
         }
       )
 
-      addBypassCap('0402', '0.1uF', VCP, self.pinsToNets['VM'])
-      addBypassCap('0402', '0.1uF', CPH, CPL)
+      #decouple VM pin
+      C('0402', '0.1uF', VCP, self.pinsToNets['VM'])
 
-      addBypassCap('0402', '0.1uF', self.pinsToNets['GND'], self.pinsToNets['VIO']) #one cap for VSDO pin
-      addBypassCap('0402', '0.1uF', self.pinsToNets['GND'], self.pinsToNets['VIO']) #one cap for ENABLE and NSLEEP pins that are close to each other.
+      #Add external charge pump capacitor
+      C('0402', '0.1uF', CPH, CPL)
 
-      addPull('0402', '10k', NFAULT, VD)
+      #Decouple VIO pin
+      C('0402', '0.1uF', self.pinsToNets['GND'], self.pinsToNets['VIO']) #one cap for VSDO pin
+      C('0402', '0.1uF', self.pinsToNets['GND'], self.pinsToNets['VIO']) #one cap for ENABLE and NSLEEP pins that are close to each other.
 
-      addPull('0402', '10k', VREF, VD)
-      addPull('0402', '10k', VREF, self.pinsToNets['GND'])
-      addBypassCap('0402', '0.1uF', self.pinsToNets['GND'], VREF)
+      #Pull up for open drain FAULT pin
+      R('0402', '10k', NFAULT, VD)
 
+      #Voltage divider and decoupling for VREF pin
+      R('0402', '10k', VREF, VD)
+      R('0402', '10k', VREF, self.pinsToNets['GND'])
+      C('0402', '0.1uF', self.pinsToNets['GND'], VREF)
+
+    def CreateNet(self, NetName):
+      Net(self.name + "_" + NetName)
+      return self.name + "_" + NetName
+    def GetNetName(self, NetName):
+      return self.name + "_" + NetName
 
     #Random helper functions.  No need to modify these
     def CheckAllPinsAssigned(self):

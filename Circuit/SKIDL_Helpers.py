@@ -11,7 +11,7 @@ def addPassive(passiveType, size, value, Radial = False):
   newPart.value = value
   return newPart
 
-def addBypassCap(size, value, net1, net2):
+def C(size, value, net1, net2):
     cap = addPassive('C', size, value)
     Net.get(net1) & cap & Net.get(net2)
 #example size value list is as follows:
@@ -19,9 +19,9 @@ def addBypassCap(size, value, net1, net2):
 # ['0805', '10.0uF']]
 def addBypassCaps(sizeValueList, net1, net2):
   for sizeValuePair in sizeValueList:
-    addBypassCap(sizeValuePair[0], sizeValuePair[1], net1, net2)
+    C(sizeValuePair[0], sizeValuePair[1], net1, net2)
 
-def addPull(size, value, net1, net2):
+def R(size, value, net1, net2):
     pull = addPassive('R', size, value)
     Net.get(net1) & pull & Net.get(net2)
 
