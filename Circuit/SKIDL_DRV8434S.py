@@ -18,24 +18,25 @@ Net('SDI')
 Net('SCLK')
 
 for i in range(1, 5):
+
+#Auto Generated Net Names (not auto generated at moment, but suggested from SubCircuit definitions
+
+SDI = 'SDI'
+#loop from 1 to 4
+for i in range(1, 5):
+  #First define output nets for Stepper coils
   Net('AOUT1_' + str(i))
   Net('AOUT2_' + str(i))
   Net('BOUT2_' + str(i))
   Net('BOUT1_' + str(i))
 
-#Auto Generated Net Names (not auto generated at moment, but suggested from SubCircuit definitions
-
-#loop from 1 to 4
-for i in range(1, 5):
-  #Connect SDO
   SDO = 'SDO_' + str(i)
+  #Connect last SDO to connector NET
   if i == 4:
     SDO = 'SDO'
 
   #connect SDI to previous SDO, except first one back to microcontroller
   SDI = 'SDO_' + str(i - 1)
-  if i == 1:
-    SDI = 'SDI'
   SubCircuit_DRV8434S('Driver' + str(i),
         {   'VM'      : 'VM',
             'AOUT1'   : 'AOUT1_' + str(i),
@@ -50,6 +51,8 @@ for i in range(1, 5):
             'VIO'     : 'VIO'
         }
       )
+  #Connect next SDI to previous SDO
+  SDI = SDO
 
 InstantiatePart(
         Part("Connector_Generic", "Conn_01x16", footprint="Connector_PinSocket_2.54mm:PinSocket_1x16_P2.54mm_Vertical"),
