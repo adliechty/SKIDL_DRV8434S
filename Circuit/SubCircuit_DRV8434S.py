@@ -5,7 +5,6 @@ lib_search_paths[KICAD].append('./TI_DRV8434S')
 
 class SubCircuit_DRV8434S(SubCircuit):
     def __init__(self, name, PortConnections):
-      self.name = name
       #When creating your own subcircuit, replace this with actual ports on your sub circuit.
       Ports = (['VM',
                 'AOUT1',
