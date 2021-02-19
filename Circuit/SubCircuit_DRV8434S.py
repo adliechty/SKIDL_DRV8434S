@@ -5,7 +5,9 @@ lib_search_paths[KICAD].append('./TI_DRV8434S')
 
 class SubCircuit_DRV8434S(SubCircuit):
     def __init__(self, name, PortConnections):
+      #################################################################
       #When creating your own subcircuit, replace this with actual ports on your sub circuit.
+      #################################################################
       Ports = (['VM',
                 'AOUT1',
                 'AOUT2',
@@ -19,11 +21,12 @@ class SubCircuit_DRV8434S(SubCircuit):
                 'CS_n'])
       #Call the parent class with list of ports and net connections to those ports
       super().__init__(name, Ports, PortConnections)
-      #Define the sub circuit
-      self.DefineSubCircuit()
 
-
+    #################################################################
     #Modify this function for your desired sub circuit
+    #This is a required function of a subCircuit and gets called by the
+    #Parent class
+    #################################################################
     def DefineSubCircuit(self):
       VD     = self.CreateNet('+5VD', drive=POWER)
       NFAULT = self.CreateNet('NFAULT')

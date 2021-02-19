@@ -74,6 +74,9 @@ class SubCircuit:
     self.PortConnections = PortConnections
     self.Ports = Ports
     self.CheckAllPinsAssigned()
+    #Define the sub circuit.  This function is a required function of the child class and is called here to keep
+    #Child class as simple as possible
+    self.DefineSubCircuit()
 
   def CreateNet(self, NetName, **kwargs):
     #Create the NET along with any arguments passed along for that NET such as drive=POWER
