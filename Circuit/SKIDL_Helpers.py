@@ -64,3 +64,34 @@ def InstantiatePart(part, pinToNetMapping):
 
     print("Possible FEATURE:  May be good to change this function to enforce you to state pin number as well as name to ensure that mapping is correct or at least to see that mapping in the code")
     return part
+
+#TODO:  Make it so you can dynamically change the number of ports into a Sub Circuit?
+#This is the parent class for defining a SubCircuit
+#When defining a sub circuit, inherit from this class then just add parts specific to your sub circuit
+class SubCircuit:
+  def __init__(self, name, Ports, PortConnections):
+    self.name = name
+    self.PortConnections = PortConnections
+    self.Ports = Ports
+    self.CheckAllPinsAssigned()
+
+  def CreateNet(self, NetName, **kwargs):
+    #Create the NET along with any arguments passed along for that NET such as drive=POWER
+    Net(self.name + "_" + NetName, **kwargs)
+    return self.name + "_" + NetName
+  def GetNetName(self, NetName):
+    return self.name + "_" + NetName
+
+  #Random helper functions.  No need to modify these
+  def CheckAllPinsAssigned(self):
+    missingPortConnections = []
+    for pin in self.Ports:
+      if pin not in self.PortConnections:
+        missingPortConnections.append(pin)
+
+    if missingPortConnections:
+      maxStrLength = max(len(x) for x in missingPortConnections) 
+      print("WARNING:  Add these mapings to the part instantiation, if mapping is 1:1 with pin name to net name:")
+      for pin in missingPortConnections:
+        print('    \'' + pin + '\'' + ' ' * (maxStrLength - len(pin) + 1) + ': \'' + pin + '\',')
+

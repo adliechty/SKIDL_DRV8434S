@@ -3,61 +3,58 @@ from SKIDL_Helpers import *
 
 lib_search_paths[KICAD].append('./TI_DRV8434S')
 
-class SubCircuit_DRV8434S:
-    def __init__(self, name, pinsToNets):
+class SubCircuit_DRV8434S(SubCircuit):
+    def __init__(self, name, PortConnections):
       self.name = name
-      self.DefineRequiredPins()
-      self.pinsToNets = pinsToNets
-      self.CheckAllPinsAssigned()
+      #When creating your own subcircuit, replace this with actual ports on your sub circuit.
+      Ports = (['VM',
+                'AOUT1',
+                'AOUT2',
+                'BOUT1',
+                'BOUT2',
+                'GND',
+                'VIO',
+                'SCLK',
+                'SDI',
+                'SDO',
+                'CS_n'])
+      #Call the parent class with list of ports and net connections to those ports
+      super().__init__(name, Ports, PortConnections)
+      #Define the sub circuit
       self.DefineSubCircuit()
 
-    #Modify this to define pins of the sub circuit
-    def DefineRequiredPins(self):
-      print("InDefineRequiredPins")
-      self.requiredPins = ['VM',
-                   'AOUT1',
-                   'AOUT2',
-                   'BOUT1',
-                   'BOUT2',
-                   'GND',
-                   'VIO',
-                   'SCLK',
-                   'SDI',
-                   'SDO',
-                   'CS_n'
-                   ]
 
     #Modify this function for your desired sub circuit
     def DefineSubCircuit(self):
-      VD     = self.CreateNet('+5VD')
+      VD     = self.CreateNet('+5VD', drive=POWER)
       NFAULT = self.CreateNet('NFAULT')
       VREF   = self.CreateNet('VREF')
-      CPL    = self.CreateNet('CPL')
-      CPH    = self.CreateNet('CPH')
-      VCP    = self.CreateNet('VCP')
+      CPL    = self.CreateNet('CPL', drive=POWER)
+      CPH    = self.CreateNet('CPH', drive=POWER)
+      VCP    = self.CreateNet('VCP', drive=POWER)
       
       InstantiatePart(
       Part("TI_DRV8434S", "DRV8434SRGER", footprint="StepperLibrary:DRV8434SRGER"),
-        {   'VM'      : self.pinsToNets['VM'],
-            'AOUT1'   : self.pinsToNets['AOUT1'],
-            'AOUT2'   : self.pinsToNets['AOUT2'],
-            'BOUT2'   : self.pinsToNets['BOUT2'],
-            'BOUT1'   : self.pinsToNets['BOUT1'],
-            'PAD'     : self.pinsToNets['GND'],
-            'GND'     : self.pinsToNets['GND'],
-            'PGND'    : self.pinsToNets['GND'],
+        {   'VM'      : self.PortConnections['VM'],
+            'AOUT1'   : self.PortConnections['AOUT1'],
+            'AOUT2'   : self.PortConnections['AOUT2'],
+            'BOUT2'   : self.PortConnections['BOUT2'],
+            'BOUT1'   : self.PortConnections['BOUT1'],
+            'PAD'     : self.PortConnections['GND'],
+            'GND'     : self.PortConnections['GND'],
+            'PGND'    : self.PortConnections['GND'],
             'DVDD'    : VD,
             'NFAULT'  : NFAULT,
             'VREF'    : VREF,
-            'NSCS'    : self.pinsToNets['CS_n'],
-            'SDO'     : self.pinsToNets['SDO'],
-            'SDI'     : self.pinsToNets['SDI'],
-            'SCLK'    : self.pinsToNets['SCLK'],
-            'STEP'    : self.pinsToNets['GND'],
-            'DIR'     : self.pinsToNets['GND'],
-            'ENABLE'  : self.pinsToNets['VIO'],
-            'VSDO'    : self.pinsToNets['VIO'],
-            'NSLEEP'  : self.pinsToNets['VIO'],
+            'NSCS'    : self.PortConnections['CS_n'],
+            'SDO'     : self.PortConnections['SDO'],
+            'SDI'     : self.PortConnections['SDI'],
+            'SCLK'    : self.PortConnections['SCLK'],
+            'STEP'    : self.PortConnections['GND'],
+            'DIR'     : self.PortConnections['GND'],
+            'ENABLE'  : self.PortConnections['VIO'],
+            'VSDO'    : self.PortConnections['VIO'],
+            'NSLEEP'  : self.PortConnections['VIO'],
             'CPL'     : CPL,
             'CPH'     : CPH,
             'VCP'     : VCP
@@ -65,40 +62,23 @@ class SubCircuit_DRV8434S:
       )
 
       #decouple VM pin
-      C('0402', '0.1uF', VCP, self.pinsToNets['VM'])
+      C('0402', '0.1uF', VCP, self.PortConnections['VM'])
 
       #Add external charge pump capacitor
       C('0402', '0.1uF', CPH, CPL)
 
       #Decouple VIO pin
-      C('0402', '0.1uF', self.pinsToNets['GND'], self.pinsToNets['VIO']) #one cap for VSDO pin
-      C('0402', '0.1uF', self.pinsToNets['GND'], self.pinsToNets['VIO']) #one cap for ENABLE and NSLEEP pins that are close to each other.
+      C('0402', '0.1uF', self.PortConnections['GND'], self.PortConnections['VIO']) #one cap for VSDO pin
+      C('0402', '0.1uF', self.PortConnections['GND'], self.PortConnections['VIO']) #one cap for ENABLE and NSLEEP pins that are close to each other.
 
       #Pull up for open drain FAULT pin
       R('0402', '10k', NFAULT, VD)
 
       #Voltage divider and decoupling for VREF pin
       R('0402', '10k', VREF, VD)
-      R('0402', '10k', VREF, self.pinsToNets['GND'])
-      C('0402', '0.1uF', self.pinsToNets['GND'], VREF)
+      R('0402', '10k', VREF, self.PortConnections['GND'])
+      C('0402', '0.1uF', self.PortConnections['GND'], VREF)
 
-    def CreateNet(self, NetName):
-      Net(self.name + "_" + NetName)
-      return self.name + "_" + NetName
-    def GetNetName(self, NetName):
-      return self.name + "_" + NetName
 
-    #Random helper functions.  No need to modify these
-    def CheckAllPinsAssigned(self):
-      missingPinToNetMappings = []
-      for pin in self.requiredPins:
-        if pin not in self.pinsToNets:
-          missingPinToNetMappings.append(pin)
-
-      if missingPinToNetMappings:
-        maxStrLength = max(len(x) for x in missingPinToNetMappings) 
-        print("WARNING:  Add these mapings to the part instantiation, if mapping is 1:1 with pin name to net name:")
-        for pin in missingPinToNetMappings:
-          print('    \'' + pin + '\'' + ' ' * (maxStrLength - len(pin) + 1) + ': \'' + pin + '\',')
 
               

@@ -4,26 +4,20 @@ from SubCircuit_DRV8434S import *
 
 lib_search_paths[KICAD].append('./TI_DRV8434S')
 
-#Auto Generated Net Names (not auto generated at moment, but suggested from SubCircuit definitions
-Net('GND')
-Net('VM')
-Net('VIO')
+#Start of Auto Generated Net Names (not auto generated at moment, but suggested from SubCircuit definitions
+Net('GND', drive=POWER)
+Net('VM',  drive=POWER)
+Net('VIO', drive=POWER)
 
 Net('CS_n')
-Net('SDO')
-Net('SDO_1')
-Net('SDO_2')
-Net('SDO_3')
 Net('SDI')
 Net('SCLK')
-
-for i in range(1, 5):
-
-#Auto Generated Net Names (not auto generated at moment, but suggested from SubCircuit definitions
+#End of Auto Generated Net Names (not auto generated at moment, but suggested from SubCircuit definitions
 
 SDI = 'SDI'
 #loop from 1 to 4
-for i in range(1, 5):
+kNumCircuits = 4
+for i in range(1, kNumCircuits + 1):
   #First define output nets for Stepper coils
   Net('AOUT1_' + str(i))
   Net('AOUT2_' + str(i))
@@ -32,11 +26,10 @@ for i in range(1, 5):
 
   SDO = 'SDO_' + str(i)
   #Connect last SDO to connector NET
-  if i == 4:
+  if i == kNumCircuits:
     SDO = 'SDO'
+  Net(SDO)
 
-  #connect SDI to previous SDO, except first one back to microcontroller
-  SDI = 'SDO_' + str(i - 1)
   SubCircuit_DRV8434S('Driver' + str(i),
         {   'VM'      : 'VM',
             'AOUT1'   : 'AOUT1_' + str(i),
